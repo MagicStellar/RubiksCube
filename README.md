@@ -11,46 +11,20 @@ An interactive 3×3×3 Rubik's Cube built with **Unreal Engine 5.8** and **C++**
 - Move history, undo, and puzzle reset.
 - Integer grid coordinates that keep puzzle mechanics separate from visual presentation.
 
-## Rubik's Cube flow
+## Code architecture
 
 ```mermaid
 flowchart TD
-    Start([Start Play]) --> Init[Initialize cubelets, materials and camera]
-    Init --> Input{Player input}
-
-    Input -->|Click a sticker| Select[Select and highlight the face layer]
-    Select --> Input
-
-    Input -->|Drag a sticker| Preview["Infer layer and direction; show highlight and arrow"]
-    Preview --> Release{Clear drag on release?}
-    Release -->|No or cancelled| Cancel[Hide preview and restore selection]
-    Cancel --> Input
-    Release -->|Yes| Move[Execute slice move]
-    Input -->|Keyboard turn| Move
-
-    Input -->|Orbit, zoom or camera controls| Camera[Update camera without changing puzzle state]
-    Camera --> Input
-
-    Input -->|Space| Scramble[Save camera view, pull back and queue scramble moves]
-    Scramble --> Move
-    Input -->|Undo| History{History available and cube idle?}
-    History -->|No| Input
-    History -->|Yes| Inverse[Prepare inverse of the last move]
-    Inverse --> Move
-
-    Input -->|Reset| Reset["Cancel playback; restore solved cube and clear history"]
-    Reset --> Input
-
-    Move --> Animate[Animate the selected slice through 90 degrees]
-    Animate --> Update["Snap grid coordinates; update history, counter and highlights"]
-    Update --> Solved{Cube solved?}
-    Solved -->|Yes| Event[Broadcast solved event]
-    Solved -->|No| Queue{More queued moves?}
-    Event --> Queue
-    Queue -->|Yes| Move
-    Queue -->|No| Restore[Restore saved camera if scramble finished]
-    Restore --> Input
+    Blueprint[BP_RubiksCube] -->|inherits| Cube[ARubiksCube: gameplay and move management]
+    Input[Unreal input system] --> Cube
+    Cube -.->|uses| Types[RubiksCubeTypes: move definitions and enums]
+    Cube --> Animation[FTimeline and RotationPivot]
+    Animation -->|rotates| Cubelets[27 URubiksCubeletComponent instances]
+    Cubelets --> Visuals[Meshes, stickers and highlight materials]
+    Cube --> Camera[CameraBoom and FollowCamera]
 ```
+
+`ARubiksCube` coordinates moves, animation, history and camera behavior. Each cubelet stores its grid position and orientation, while the Blueprint and content assets provide the scene's appearance.
 
 ## Controls
 
