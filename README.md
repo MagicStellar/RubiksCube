@@ -11,20 +11,46 @@ An interactive 3×3×3 Rubik's Cube built with **Unreal Engine 5.8** and **C++**
 - Move history, undo, and puzzle reset.
 - Integer grid coordinates that keep puzzle mechanics separate from visual presentation.
 
-## Getting started
+## Rubik's Cube flow
 
-1. Install Unreal Engine **5.8**, Visual Studio with **Game development with C++**, and a Windows SDK. The included `.vsconfig` lists the development components used for this project.
-2. Clone the repository:
+```mermaid
+flowchart TD
+    Start([Start Play]) --> Init[Initialize cubelets, materials and camera]
+    Init --> Input{Player input}
 
-   ```sh
-   git clone https://github.com/MagicStellar/RubiksCube.git
-   ```
+    Input -->|Click a sticker| Select[Select and highlight the face layer]
+    Select --> Input
 
-3. Right-click `RubiksCube.uproject` and generate Visual Studio project files.
-4. Build the **RubiksCubeEditor** target using **Development Editor / Win64**, then open the project.
-5. Open the **CubeStudio** map under `Content/Maps` and press **Play**.
+    Input -->|Drag a sticker| Preview["Infer layer and direction; show highlight and arrow"]
+    Preview --> Release{Clear drag on release?}
+    Release -->|No or cancelled| Cancel[Hide preview and restore selection]
+    Cancel --> Input
+    Release -->|Yes| Move[Execute slice move]
+    Input -->|Keyboard turn| Move
 
-The project enables the `ModelContextProtocol`, `EditorToolset`, and `Terminal` editor plugins. Install them if your engine distribution does not include them, or disable their entries in `RubiksCube.uproject` to run without the editor tooling. These plugins are not bundled in this repository.
+    Input -->|Orbit, zoom or camera controls| Camera[Update camera without changing puzzle state]
+    Camera --> Input
+
+    Input -->|Space| Scramble[Save camera view, pull back and queue scramble moves]
+    Scramble --> Move
+    Input -->|Undo| History{History available and cube idle?}
+    History -->|No| Input
+    History -->|Yes| Inverse[Prepare inverse of the last move]
+    Inverse --> Move
+
+    Input -->|Reset| Reset["Cancel playback; restore solved cube and clear history"]
+    Reset --> Input
+
+    Move --> Animate[Animate the selected slice through 90 degrees]
+    Animate --> Update["Snap grid coordinates; update history, counter and highlights"]
+    Update --> Solved{Cube solved?}
+    Solved -->|Yes| Event[Broadcast solved event]
+    Solved -->|No| Queue{More queued moves?}
+    Event --> Queue
+    Queue -->|Yes| Move
+    Queue -->|No| Restore[Restore saved camera if scramble finished]
+    Restore --> Input
+```
 
 ## Controls
 
