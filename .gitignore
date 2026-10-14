@@ -1,0 +1,42 @@
+# Unreal-generated output and local caches
+/Binaries/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/Build/*
+!/Build/*/
+!/Build/**/*.ico
+!/Build/**/*.png
+!/Build/**/*.icns
+/Plugins/**/Binaries/
+/Plugins/**/Intermediate/
+
+# IDE and assistant-local state
+/.vs/
+/.idea/
+/.vscode/
+/.codex/
+*.sln
+*.slnx
+*.suo
+*.user
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.VC.opendb
+
+# Private/local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/Config/UntrackedLocal/
+*.log
+*.tmp
+*.bak
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
